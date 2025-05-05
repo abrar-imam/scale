@@ -63,55 +63,54 @@ document.addEventListener('DOMContentLoaded', () => {
     return;
   }
   if (window.location.pathname.includes('dashboard.html')) {
+    console.log('Initializing dashboard for role:', currentUser.role);
     if (currentUser.role === 'Admin') {
-      console.log('Showing admin navigation');
-      document.getElementById('admin-nav').classList.remove('hidden');
+      console.log('Showing all sections for Admin');
+      document.getElementById('add-project-form').classList.remove('hidden');
+      document.getElementById('add-user').classList.remove('hidden');
+      document.getElementById('remove-user').classList.remove('hidden');
+      document.getElementById('login-history').classList.remove('hidden');
+      loadUsers();
+      loadLoginHistory();
     } else if (currentUser.role === 'Moderator') {
-      console.log('Showing moderator navigation');
-      document.getElementById('moderator-nav').classList.remove('hidden');
-    } else {
-      console.log('Showing general user navigation');
-      document.getElementById('general-nav').classList.remove('hidden');
-    }
-    showSection('add-user');
-  }
-  if (window.location.pathname.includes('projects.html')) {
-    if (currentUser.role === 'Admin' || currentUser.role === 'Moderator') {
+      console.log('Showing projects section for Moderator');
       document.getElementById('add-project-form').classList.remove('hidden');
     }
     loadProjects();
   }
 });
 
-function showSection(sectionId) {
-  console.log('Showing section:', sectionId);
-  document.querySelectorAll('.section').forEach(section => section.classList.remove('active'));
-  document.getElementById(sectionId).classList.add('active');
-}
-
 function loadProjects() {
   console.log('Loading projects');
   const projectList = document.getElementById('project-list');
+  if (!projectList) {
+    console.log('Error: project-list element not found');
+    return;
+  }
   projectList.innerHTML = '';
   const projects = JSON.parse(localStorage.getItem('projects'));
   const currentUser = JSON.parse(localStorage.getItem('currentUser'));
   console.log('Projects:', projects);
-  projects.forEach(project => {
-    const div = document.createElement('div');
-    div.className = 'project-card';
-    let html = `<h3 class="font-bold">${project.name}</h3>`;
-    if (currentUser.role === 'Admin') {
-      html += `<button onclick="removeProject('${project.id}')" class="bg-red-500 text-white px-2 py-1 rounded text-sm mb-2">Remove Project</button>`;
-    }
-    if (currentUser.role === 'Admin' || currentUser.role === 'Moderator') {
-      html += `<button onclick="openModal('${project.id}')" class="bg-blue-500 text-white px-2 py-1 rounded text-sm mb-2 ml-2">Add File</button>`;
-    }
-    project.files.forEach(file => {
-      html += `<p><a href="${file.link}" target="_blank" class="file-link text-blue-600">${file.name}</a></p>`;
+  if (projects && projects.length > 0) {
+    projects.forEach(project => {
+      const div = document.createElement('div');
+      div.className = 'project-card';
+      let html = `<h3 class="font-bold">${project.name}</h3>`;
+      if (currentUser.role === 'Admin') {
+        html += `<button onclick="removeProject('${project.id}')" class="bg-red-500 text-white px-2 py-1 rounded text-sm mb-2">Remove Project</button>`;
+      }
+      if (currentUser.role === 'Admin' || currentUser.role === 'Moderator') {
+        html += `<button onclick="openModal('${project.id}')" class="bg-blue-500 text-white px-2 py-1 rounded text-sm mb-2 ml-2">Add File</button>`;
+      }
+      project.files.forEach(file => {
+        html += `<p><a href="${file.link}" target="_blank" class="file-link text-blue-600">${file.name}</a></p>`;
+      });
+      div.innerHTML = html;
+      projectList.appendChild(div);
     });
-    div.innerHTML = html;
-    projectList.appendChild(div);
-  });
+  } else {
+    projectList.innerHTML = '<p>No projects found</p>';
+  }
 }
 
 function addProject() {
@@ -132,6 +131,7 @@ function addProject() {
     loadProjects();
   } else {
     console.log('Project add failed: Missing project name');
+    alert('Please enter a project name');
   }
 }
 
@@ -174,6 +174,7 @@ function addFile() {
     }
   } else {
     console.log('File add failed: Missing file name or link');
+    alert('Please enter both file name and link');
   }
 }
 
@@ -182,36 +183,61 @@ function addUser() {
   const userId = document.getElementById('new-user-id').value;
   const password = document.getElementById('new-user-password').value;
   const role = document.getElementById('new-user-role').value;
-  if (userId && password) {
+  if (userId && password && role) {
     const users = JSON.parse(localStorage.getItem('users'));
+    const existingUser = users.find(u => u.id === userId);
+    if (existingUser) {
+      console.log('Add user failed: User ID already exists');
+      alert('User ID already exists');
+      return;
+    }
     const uid = 'user' + Date.now();
     users.push({ id: userId, password, role, uid });
     localStorage.setItem('users', JSON.stringify(users));
+    console.log('User added:', { id: userId, role });
     alert('User added successfully');
+    document.getElementById('new-user-id').value = '';
+    document.getElementById('new-user-password').value = '';
+    document.getElementById('new-user-role').value = 'Admin';
     loadUsers();
   } else {
-    alert('Please enter ID and password');
+    console.log('Add user failed: Missing ID, password, or role');
+    alert('Please enter User ID, password, and role');
   }
 }
 
 function loadUsers() {
   console.log('Loading users');
   const userList = document.getElementById('user-list');
+  if (!userList) {
+    console.log('Error: user-list element not found');
+    return;
+  }
   userList.innerHTML = '';
   const users = JSON.parse(localStorage.getItem('users'));
   console.log('Users:', users);
-  users.forEach(user => {
-    const div = document.createElement('div');
-    div.className = 'p-2';
-    div.innerHTML = `${user.id} (${user.role}) <button onclick="removeUser('${user.uid}')" class="bg-red-500 text-white px-2 py-1 rounded">Remove</button>`;
-    userList.appendChild(div);
-  });
+  if (users && users.length > 0) {
+    users.forEach(user => {
+      const div = document.createElement('div');
+      div.className = 'p-2';
+      div.innerHTML = `${user.id} (${user.role}) <button onclick="removeUser('${user.uid}')" class="bg-red-500 text-white px-2 py-1 rounded">Remove</button>`;
+      userList.appendChild(div);
+    });
+  } else {
+    userList.innerHTML = '<p>No users found</p>';
+  }
 }
 
 function removeUser(uid) {
   console.log('Removing user:', uid);
   if (confirm('Are you sure you want to remove this user?')) {
     let users = JSON.parse(localStorage.getItem('users'));
+    const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+    if (currentUser.uid === uid) {
+      console.log('Cannot remove current user');
+      alert('You cannot remove yourself');
+      return;
+    }
     users = users.filter(user => user.uid !== uid);
     localStorage.setItem('users', JSON.stringify(users));
     loadUsers();
@@ -221,13 +247,21 @@ function removeUser(uid) {
 function loadLoginHistory() {
   console.log('Loading login history');
   const loginHistoryList = document.getElementById('login-history-list');
+  if (!loginHistoryList) {
+    console.log('Error: login-history-list element not found');
+    return;
+  }
   loginHistoryList.innerHTML = '';
   const loginHistory = JSON.parse(localStorage.getItem('loginHistory'));
   console.log('Login history:', loginHistory);
-  loginHistory.forEach(log => {
-    const div = document.createElement('div');
-    div.className = 'p-2';
-    div.textContent = `${log.userId} logged in at ${new Date(log.timestamp).toLocaleString()}`;
-    loginHistoryList.appendChild(div);
-  });
+  if (loginHistory && loginHistory.length > 0) {
+    loginHistory.forEach(log => {
+      const div = document.createElement('div');
+      div.className = 'p-2';
+      div.textContent = `${log.userId} logged in at ${new Date(log.timestamp).toLocaleString()}`;
+      loginHistoryList.appendChild(div);
+    });
+  } else {
+    loginHistoryList.innerHTML = '<p>No login history found</p>';
+  }
 }
