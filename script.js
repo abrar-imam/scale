@@ -64,17 +64,31 @@ document.addEventListener('DOMContentLoaded', () => {
   }
   if (window.location.pathname.includes('dashboard.html')) {
     console.log('Initializing dashboard for role:', currentUser.role);
+    const addProjectForm = document.getElementById('add-project-form');
+    const addUserSection = document.getElementById('add-user');
+    const removeUserSection = document.getElementById('remove-user');
+    const loginHistorySection = document.getElementById('login-history');
+    
     if (currentUser.role === 'Admin') {
       console.log('Showing all sections for Admin');
-      document.getElementById('add-project-form').classList.remove('hidden');
-      document.getElementById('add-user').classList.remove('hidden');
-      document.getElementById('remove-user').classList.remove('hidden');
-      document.getElementById('login-history').classList.remove('hidden');
+      if (addProjectForm) addProjectForm.style.display = 'block';
+      if (addUserSection) addUserSection.style.display = 'block';
+      if (removeUserSection) removeUserSection.style.display = 'block';
+      if (loginHistorySection) loginHistorySection.style.display = 'block';
       loadUsers();
       loadLoginHistory();
     } else if (currentUser.role === 'Moderator') {
       console.log('Showing projects section for Moderator');
-      document.getElementById('add-project-form').classList.remove('hidden');
+      if (addProjectForm) addProjectForm.style.display = 'block';
+      if (addUserSection) addUserSection.style.display = 'none';
+      if (removeUserSection) removeUserSection.style.display = 'none';
+      if (loginHistorySection) loginHistorySection.style.display = 'none';
+    } else {
+      console.log('Showing projects section for General User');
+      if (addProjectForm) addProjectForm.style.display = 'none';
+      if (addUserSection) addUserSection.style.display = 'none';
+      if (removeUserSection) removeUserSection.style.display = 'none';
+      if (loginHistorySection) loginHistorySection.style.display = 'none';
     }
     loadProjects();
   }
