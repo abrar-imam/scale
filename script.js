@@ -25,17 +25,17 @@ if (!localStorage.getItem('loginHistory')) {
 
 function login() {
   console.log('Login button clicked');
-  const userId = document.getElementById('user-id').value;
+  const userId = document.getElementById('user-id').value.trim();
   const password = document.getElementById('password').value;
   console.log('User ID entered:', userId);
   console.log('Password entered:', password);
-  const users = JSON.parse(localStorage.getItem('users'));
+  const users = JSON.parse(localStorage.getItem('users')) || [];
   console.log('Users in local storage:', users);
   const user = users.find(u => u.id === userId && u.password === password);
   if (user) {
     console.log('User found:', user);
     localStorage.setItem('currentUser', JSON.stringify(user));
-    const loginHistory = JSON.parse(localStorage.getItem('loginHistory'));
+    const loginHistory = JSON.parse(localStorage.getItem('loginHistory')) || [];
     loginHistory.push({ userId: userId, timestamp: new Date().toISOString() });
     localStorage.setItem('loginHistory', JSON.stringify(loginHistory));
     console.log('Redirecting to dashboard.html');
@@ -73,7 +73,7 @@ document.addEventListener('DOMContentLoaded', () => {
       console.log('Showing all sections for Admin');
       if (addProjectForm) addProjectForm.style.display = 'block';
       if (addUserSection) addUserSection.style.display = 'block';
-      if (removeUserSection) removeUserSection.style.display = 'block';
+      if (removeUserSection) addUserSection.style.display = 'block';
       if (loginHistorySection) loginHistorySection.style.display = 'block';
       loadUsers();
       loadLoginHistory();
@@ -102,7 +102,7 @@ function loadProjects() {
     return;
   }
   projectList.innerHTML = '';
-  const projects = JSON.parse(localStorage.getItem('projects'));
+  const projects = JSON.parse(localStorage.getItem('projects')) || [];
   const currentUser = JSON.parse(localStorage.getItem('currentUser'));
   console.log('Projects:', projects);
   if (projects && projects.length > 0) {
@@ -129,9 +129,9 @@ function loadProjects() {
 
 function addProject() {
   console.log('Adding project');
-  const projectName = document.getElementById('project-name').value;
+  const projectName = document.getElementById('project-name').value.trim();
   if (projectName) {
-    const projects = JSON.parse(localStorage.getItem('projects'));
+    const projects = JSON.parse(localStorage.getItem('projects')) || [];
     const projectId = 'project' + Date.now();
     projects.push({
       id: projectId,
@@ -152,7 +152,7 @@ function addProject() {
 function removeProject(projectId) {
   console.log('Removing project:', projectId);
   if (confirm('Are you sure you want to remove this project?')) {
-    let projects = JSON.parse(localStorage.getItem('projects'));
+    let projects = JSON.parse(localStorage.getItem('projects')) || [];
     projects = projects.filter(project => project.id !== projectId);
     localStorage.setItem('projects', JSON.stringify(projects));
     loadProjects();
@@ -162,120 +162,4 @@ function removeProject(projectId) {
 function openModal(projectId) {
   console.log('Opening file modal for project:', projectId);
   document.getElementById('file-project-id').value = projectId;
-  document.getElementById('file-name').value = '';
-  document.getElementById('file-link').value = '';
-  document.getElementById('file-modal').classList.remove('hidden');
-}
-
-function closeModal() {
-  console.log('Closing file modal');
-  document.getElementById('file-modal').classList.add('hidden');
-}
-
-function addFile() {
-  console.log('Adding file');
-  const projectId = document.getElementById('file-project-id').value;
-  const fileName = document.getElementById('file-name').value;
-  const fileLink = document.getElementById('file-link').value;
-  if (fileName && fileLink) {
-    const projects = JSON.parse(localStorage.getItem('projects'));
-    const project = projects.find(p => p.id === projectId);
-    if (project) {
-      project.files.push({ name: fileName, link: fileLink });
-      localStorage.setItem('projects', JSON.stringify(projects));
-      closeModal();
-      loadProjects();
-    }
-  } else {
-    console.log('File add failed: Missing file name or link');
-    alert('Please enter both file name and link');
-  }
-}
-
-function addUser() {
-  console.log('Adding user');
-  const userId = document.getElementById('new-user-id').value;
-  const password = document.getElementById('new-user-password').value;
-  const role = document.getElementById('new-user-role').value;
-  if (userId && password && role) {
-    const users = JSON.parse(localStorage.getItem('users'));
-    const existingUser = users.find(u => u.id === userId);
-    if (existingUser) {
-      console.log('Add user failed: User ID already exists');
-      alert('User ID already exists');
-      return;
-    }
-    const uid = 'user' + Date.now();
-    users.push({ id: userId, password, role, uid });
-    localStorage.setItem('users', JSON.stringify(users));
-    console.log('User added:', { id: userId, role });
-    alert('User added successfully');
-    document.getElementById('new-user-id').value = '';
-    document.getElementById('new-user-password').value = '';
-    document.getElementById('new-user-role').value = 'Admin';
-    loadUsers();
-  } else {
-    console.log('Add user failed: Missing ID, password, or role');
-    alert('Please enter User ID, password, and role');
-  }
-}
-
-function loadUsers() {
-  console.log('Loading users');
-  const userList = document.getElementById('user-list');
-  if (!userList) {
-    console.log('Error: user-list element not found');
-    return;
-  }
-  userList.innerHTML = '';
-  const users = JSON.parse(localStorage.getItem('users'));
-  console.log('Users:', users);
-  if (users && users.length > 0) {
-    users.forEach(user => {
-      const div = document.createElement('div');
-      div.className = 'p-2';
-      div.innerHTML = `${user.id} (${user.role}) <button onclick="removeUser('${user.uid}')" class="bg-red-500 text-white px-2 py-1 rounded">Remove</button>`;
-      userList.appendChild(div);
-    });
-  } else {
-    userList.innerHTML = '<p>No users found</p>';
-  }
-}
-
-function removeUser(uid) {
-  console.log('Removing user:', uid);
-  if (confirm('Are you sure you want to remove this user?')) {
-    let users = JSON.parse(localStorage.getItem('users'));
-    const currentUser = JSON.parse(localStorage.getItem('currentUser'));
-    if (currentUser.uid === uid) {
-      console.log('Cannot remove current user');
-      alert('You cannot remove yourself');
-      return;
-    }
-    users = users.filter(user => user.uid !== uid);
-    localStorage.setItem('users', JSON.stringify(users));
-    loadUsers();
-  }
-}
-
-function loadLoginHistory() {
-  console.log('Loading login history');
-  const loginHistoryList = document.getElementById('login-history-list');
-  if (!loginHistoryList) {
-    console.log('Error: login-history-list element not found');
-    return;
-  }
-  loginHistoryList.innerHTML = '';
-  const loginHistory = JSON.parse(localStorage.getItem('loginHistory'));
-  console.log('Login history:', loginHistory);
-  if (loginHistory && loginHistory.length > 0) {
-    loginHistory.forEach(log => {
-      const div = document.createElement('div');
-      div.className = 'p-2';
-      div.textContent = `${log.userId} logged in at ${new Date(log.timestamp).toLocaleString()}`;
-      loginHistoryList.appendChild(div);
-    });
-  } else {
-    loginHistoryList.innerHTML = '<p>No login history found</p>';
-  }
-}
+  document.getElementById('file-name').value
