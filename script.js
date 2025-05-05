@@ -1,6 +1,6 @@
 class User {
-    constructor(email, password, role, uid) {
-        this.email = email;
+    constructor(id, password, role, uid) {
+        this.id = id;
         this.password = password;
         this.role = role;
         this.uid = uid;
@@ -11,7 +11,7 @@ class User {
 if (!localStorage.getItem('users')) {
   console.log('Initializing users in local storage');
   localStorage.setItem('users', JSON.stringify([
-    { email: 'admin@scaleproperties.com', password: 'admin123', role: 'Admin', uid: 'admin1' }
+    { id: 'admin1', password: 'admin123', role: 'Admin', uid: 'admin1' }
   ]));
 }
 if (!localStorage.getItem('projects')) {
@@ -25,25 +25,26 @@ if (!localStorage.getItem('loginHistory')) {
 
 function login() {
   console.log('Login button clicked');
-  const email = document.getElementById('email').value;
+  const userId = document.getElementById('user-id').value;
   const password = document.getElementById('password').value;
-  console.log('Email entered:', email);
+  console.log('User ID entered:', userId);
   console.log('Password entered:', password);
   const users = JSON.parse(localStorage.getItem('users'));
   console.log('Users in local storage:', users);
-  const user = users.find(u => u.email === email && u.password === password);
+  const user = users.find(u => u.id === userId && u.password === password);
   if (user) {
     console.log('User found:', user);
     localStorage.setItem('currentUser', JSON.stringify(user));
     const loginHistory = JSON.parse(localStorage.getItem('loginHistory'));
-    loginHistory.push({ userEmail: email, timestamp: new Date().toISOString() });
+    loginHistory.push({ userId: userId, timestamp: new Date().toISOString() });
     localStorage.setItem('loginHistory', JSON.stringify(loginHistory));
     console.log('Redirecting to dashboard.html');
     window.location.href = 'dashboard.html';
   } else {
-    console.log('Login failed: Invalid email or password');
-    document.getElementById('error-message').textContent = 'Invalid email or password';
-    document.getElementById('error-message').classList.remove('hidden');
+    console.log('Login failed: Invalid ID or password');
+    const errorMessage = document.getElementById('error-message');
+    errorMessage.textContent = 'Invalid ID or password';
+    errorMessage.classList.remove('hidden');
   }
 }
 
@@ -117,7 +118,7 @@ function addProject() {
     projects.push({
       name: projectName,
       files: [{ name: fileName, link: fileLink }],
-      createdBy: JSON.parse(localStorage.getItem('currentUser')).email,
+      createdBy: JSON.parse(localStorage.getItem('currentUser')).id,
       createdAt: new Date().toISOString()
     });
     localStorage.setItem('projects', JSON.stringify(projects));
@@ -132,18 +133,18 @@ function addProject() {
 
 function addUser() {
   console.log('Adding user');
-  const email = document.getElementById('new-user-email').value;
+  const userId = document.getElementById('new-user-id').value;
   const password = document.getElementById('new-user-password').value;
   const role = document.getElementById('new-user-role').value;
-  if (email && password) {
+  if (userId && password) {
     const users = JSON.parse(localStorage.getItem('users'));
     const uid = 'user' + Date.now();
-    users.push({ email, password, role, uid });
+    users.push({ id: userId, password, role, uid });
     localStorage.setItem('users', JSON.stringify(users));
     alert('User added successfully');
     loadUsers();
   } else {
-    alert('Please enter email and password');
+    alert('Please enter ID and password');
   }
 }
 
@@ -156,7 +157,7 @@ function loadUsers() {
   users.forEach(user => {
     const div = document.createElement('div');
     div.className = 'p-2';
-    div.innerHTML = `${user.email} (${user.role}) <button onclick="removeUser('${user.uid}')" class="bg-red-500 text-white px-2 py-1 rounded">Remove</button>`;
+    div.innerHTML = `${user.id} (${user.role}) <button onclick="removeUser('${user.uid}')" class="bg-red-500 text-white px-2 py-1 rounded">Remove</button>`;
     userList.appendChild(div);
   });
 }
@@ -180,7 +181,7 @@ function loadLoginHistory() {
   loginHistory.forEach(log => {
     const div = document.createElement('div');
     div.className = 'p-2';
-    div.textContent = `${log.userEmail} logged in at ${new Date(log.timestamp).toLocaleString()}`;
+    div.textContent = `${log.userId} logged in at ${new Date(log.timestamp).toLocaleString()}`;
     loginHistoryList.appendChild(div);
   });
 }
