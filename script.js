@@ -9,53 +9,70 @@ class User {
 
 // Initialize local storage
 if (!localStorage.getItem('users')) {
+  console.log('Initializing users in local storage');
   localStorage.setItem('users', JSON.stringify([
-    { email: 'admin', password: 'admin123', role: 'Admin', uid: 'admin1' }
+    { email: 'admin@scaleproperties.com', password: 'admin123', role: 'Admin', uid: 'admin1' }
   ]));
 }
 if (!localStorage.getItem('projects')) {
+  console.log('Initializing projects in local storage');
   localStorage.setItem('projects', JSON.stringify([]));
 }
 if (!localStorage.getItem('loginHistory')) {
+  console.log('Initializing login history in local storage');
   localStorage.setItem('loginHistory', JSON.stringify([]));
 }
 
 function login() {
+  console.log('Login button clicked');
   const email = document.getElementById('email').value;
   const password = document.getElementById('password').value;
+  console.log('Email entered:', email);
+  console.log('Password entered:', password);
   const users = JSON.parse(localStorage.getItem('users'));
+  console.log('Users in local storage:', users);
   const user = users.find(u => u.email === email && u.password === password);
   if (user) {
+    console.log('User found:', user);
     localStorage.setItem('currentUser', JSON.stringify(user));
     const loginHistory = JSON.parse(localStorage.getItem('loginHistory'));
     loginHistory.push({ userEmail: email, timestamp: new Date().toISOString() });
     localStorage.setItem('loginHistory', JSON.stringify(loginHistory));
+    console.log('Redirecting to dashboard.html');
     window.location.href = 'dashboard.html';
   } else {
+    console.log('Login failed: Invalid email or password');
     document.getElementById('error-message').textContent = 'Invalid email or password';
     document.getElementById('error-message').classList.remove('hidden');
   }
 }
 
 function logout() {
+  console.log('Logging out');
   localStorage.removeItem('currentUser');
   window.location.href = 'index.html';
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+  console.log('Page loaded:', window.location.pathname);
   if (window.location.pathname.includes('dashboard.html')) {
     const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+    console.log('Current user:', currentUser);
     if (!currentUser) {
+      console.log('No current user, redirecting to index.html');
       window.location.href = 'index.html';
       return;
     }
     if (currentUser.role === 'Admin') {
+      console.log('Showing admin navigation');
       document.getElementById('admin-nav').classList.remove('hidden');
       document.getElementById('add-project-form').classList.remove('hidden');
     } else if (currentUser.role === 'Moderator') {
+      console.log('Showing moderator navigation');
       document.getElementById('moderator-nav').classList.remove('hidden');
       document.getElementById('add-project-form').classList.remove('hidden');
     } else {
+      console.log('Showing general user navigation');
       document.getElementById('general-nav').classList.remove('hidden');
     }
     loadProjects();
@@ -68,14 +85,17 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 function showSection(sectionId) {
+  console.log('Showing section:', sectionId);
   document.querySelectorAll('.section').forEach(section => section.classList.remove('active'));
   document.getElementById(sectionId).classList.add('active');
 }
 
 function loadProjects() {
+  console.log('Loading projects');
   const projectList = document.getElementById('project-list');
   projectList.innerHTML = '';
   const projects = JSON.parse(localStorage.getItem('projects'));
+  console.log('Projects:', projects);
   projects.forEach(project => {
     const div = document.createElement('div');
     div.className = 'project-card';
@@ -88,6 +108,7 @@ function loadProjects() {
 }
 
 function addProject() {
+  console.log('Adding project');
   const projectName = document.getElementById('project-name').value;
   const fileName = document.getElementById('file-name').value;
   const fileLink = document.getElementById('file-link').value;
@@ -104,10 +125,13 @@ function addProject() {
     document.getElementById('file-name').value = '';
     document.getElementById('file-link').value = '';
     loadProjects();
+  } else {
+    console.log('Project add failed: Missing fields');
   }
 }
 
 function addUser() {
+  console.log('Adding user');
   const email = document.getElementById('new-user-email').value;
   const password = document.getElementById('new-user-password').value;
   const role = document.getElementById('new-user-role').value;
@@ -124,9 +148,11 @@ function addUser() {
 }
 
 function loadUsers() {
+  console.log('Loading users');
   const userList = document.getElementById('user-list');
   userList.innerHTML = '';
   const users = JSON.parse(localStorage.getItem('users'));
+  console.log('Users:', users);
   users.forEach(user => {
     const div = document.createElement('div');
     div.className = 'p-2';
@@ -136,6 +162,7 @@ function loadUsers() {
 }
 
 function removeUser(uid) {
+  console.log('Removing user:', uid);
   if (confirm('Are you sure you want to remove this user?')) {
     let users = JSON.parse(localStorage.getItem('users'));
     users = users.filter(user => user.uid !== uid);
@@ -145,9 +172,11 @@ function removeUser(uid) {
 }
 
 function loadLoginHistory() {
+  console.log('Loading login history');
   const loginHistoryList = document.getElementById('login-history-list');
   loginHistoryList.innerHTML = '';
   const loginHistory = JSON.parse(localStorage.getItem('loginHistory'));
+  console.log('Login history:', loginHistory);
   loginHistory.forEach(log => {
     const div = document.createElement('div');
     div.className = 'p-2';
