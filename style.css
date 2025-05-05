@@ -24,3 +24,6 @@ body {
     margin-bottom: 0.5rem;
   }
 }
+#file-modal {
+  z-index: 1000;
+}
