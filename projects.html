@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Scale Properties Limited - Projects</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="bg-gray-100 min-h-screen">
+  <header class="bg-blue-600 text-white p-4">
+    <h1 class="text-xl font-bold">Scale Properties Limited - Projects</h1>
+    <button onclick="window.location.href='dashboard.html'" class="float-right bg-blue-500 px-4 py-2 rounded hover:bg-blue-600 mr-2">Back to Dashboard</button>
+    <button onclick="logout()" class="float-right bg-red-500 px-4 py-2 rounded hover:bg-red-600">Logout</button>
+  </header>
+  <div class="container mx-auto p-4">
+    <div id="add-project-form" class="mb-4 hidden">
+      <h2 class="text-xl font-bold mb-2">Add Project</h2>
+      <input id="project-name" type="text" placeholder="Project Name" class="p-2 border rounded mb-2 w-full">
+      <button onclick="addProject()" class="bg-green-500 text-white px-4 py-2 rounded">Add Project</button>
+    </div>
+    <div id="project-list"></div>
+  </div>
+  <div id="file-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden">
+    <div class="bg-white p-6 rounded-lg w-full max-w-md">
+      <h2 class="text-xl font-bold mb-4">Add File</h2>
+      <input id="file-name" type="text" placeholder="File Name" class="p-2 border rounded mb-2 w-full">
+      <input id="file-link" type="text" placeholder="File Link" class="p-2 border rounded mb-2 w-full">
+      <input id="file-project-id" type="hidden">
+      <button onclick="addFile()" class="bg-green-500 text-white px-4 py-2 rounded mr-2">Add File</button>
+      <button onclick="closeModal()" class="bg-red-500 text-white px-4 py-2 rounded">Cancel</button>
+    </div>
+  </div>
+  <script src="script.js"></script>
+</body>
+</html>
