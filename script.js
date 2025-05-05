@@ -10,7 +10,7 @@ class User {
 // Initialize local storage
 if (!localStorage.getItem('users')) {
   localStorage.setItem('users', JSON.stringify([
-    { email: 'admin@scaleproperties.com', password: 'admin123', role: 'Admin', uid: 'admin1' }
+    { email: 'admin', password: 'admin123', role: 'Admin', uid: 'admin1' }
   ]));
 }
 if (!localStorage.getItem('projects')) {
