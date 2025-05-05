@@ -4,7 +4,7 @@ body {
 .section {
   display: none;
 }
-.section.active {
+.section.abstract {
   display: block;
 }
 .project-card {
