@@ -1,0 +1,26 @@
+body {
+  font-family: Arial, sans-serif;
+}
+.section {
+  display: none;
+}
+.section.active {
+  display: block;
+}
+.project-card {
+  background: white;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  border-radius: 0.5rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+.file-link:hover {
+  text-decoration: underline;
+}
+@media (max-width: 640px) {
+  nav button {
+    display: block;
+    width: 100%;
+    margin-bottom: 0.5rem;
+  }
+}
